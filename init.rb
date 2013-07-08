@@ -1,20 +1,23 @@
 #encoding: utf-8
-
-require 'rss'
+require 'active_record'
+require 'pg'
+require 'json'
+require 'yaml'
 require 'mechanize'
 require 'open-uri'
 require 'nokogiri'
-require 'json'
 require 'date'
-require 'redis'
+
+dbconfig = YAML::load(File.open(File.dirname(__FILE__) + '/config/database.yml'))[ENV['DATABASE']]
+ActiveRecord::Base.establish_connection(dbconfig)
+
 require './db/models'
 require './lib/revserse_markdown'
 require './lib/avaxhome'
 
-dbconfig = YAML::load(File.open(File.dirname(__FILE__) + '/config/database.yml'))
-ActiveRecord::Base.establish_connection(dbconfig)
 
-account = YAML::load(File.open(File.dirname(__FILE__) + '/config/database.yml'))['account1']
+
+account = YAML::load(File.open(File.dirname(__FILE__) + '/config/uploaded.yml'))[ENV['ACCOUNT']]
 USERNAME= account['username']
 PASSWORD= account['password']
 category = ARGV[0] || "Music"

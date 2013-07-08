@@ -67,13 +67,6 @@ if vBulletin.nil? then
 	vBulletin.prefix_name = "prefixid"
 	vBulletin.save! rescue "created vBulletin error"
 end
-site = Site.where(:home_page => "http://alquz.com/vb", :forum => 81, :root_page =>"http://alquz.com/vb").first_or_create!
-if site then 	
-	site.engine = vBulletin
-	site.category = Category.where(:name => "Music").first
-	site.prefix = nil
-	site.save! rescue "created site error"
-end
-Credential.where(:username => "aword1",:password => "28787",:site_id => site.id).first_or_create!
 
-Source.where(:name => "avaxhome", :pattern => "avaxho.me", :type2 => "1").first_or_create!
+
+#Source.where(:name => "avaxhome", :pattern => "avaxho.me", :type2 => "1").first_or_create!
