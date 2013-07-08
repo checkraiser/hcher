@@ -38,6 +38,7 @@ ActiveRecord::Schema.define do
 		table.column :new_thread, :text
 		table.column :post_thread, :text
 		table.column :root_page, :text
+		table.column :encoder, :string
 	end
 	create_table :credentials do |table|
 		table.column :username, :string
