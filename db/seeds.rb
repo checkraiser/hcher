@@ -4,7 +4,9 @@ require 'pg'
 require 'json'
 require 'yaml'
 
-dbconfig = YAML::load(File.open(File.dirname(__FILE__) + '/database.yml'))
+puts ENV['DATABASE']
+
+dbconfig = YAML::load(File.open(File.expand_path('./config') + '/database.yml'))[ENV['DATABASE']]
 ActiveRecord::Base.establish_connection(dbconfig)
 
 class Source < ActiveRecord::Base
@@ -60,8 +62,7 @@ if vBulletin.nil? then
 	vBulletin.password_name = :vb_login_password
 	vBulletin.login_action = [{:action =>["login.php?do=login"]},{:id => ["navbar_loginform","login"]}].to_json
 	vBulletin.new_thread = "newthread.php?do=newthread&f="
-	vBulletin.post_thread = "newthread.php?do=postthread&f="
-	vBulletin.post_action = [{:name => "vbform"}].to_json
+	vBulletin.post_thread = "newthread.php?do=postthread&f="	
 	vBulletin.subject_name = "subject"
 	vBulletin.message_name = "message"
 	vBulletin.prefix_name = "prefixid"

@@ -1,8 +1,5 @@
 # encoding: UTF-8
-require 'active_record'
-require 'pg'
-require 'json'
-require 'yaml'
+
 
 
 
@@ -69,8 +66,7 @@ class Transaction < ActiveRecord::Base
 			return nil if page.nil?
 			puts "posting ..."
 			result =  transaction.newpost(agent)
-			if result and result.content.include?(post.title)
-				post.published = true 
+			if result and result.content.include?(post.title)				
 				transaction.status = true
 				puts "Success"
 				sleep 30

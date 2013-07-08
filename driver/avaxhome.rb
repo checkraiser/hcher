@@ -5,11 +5,12 @@ module Avaxhome
 	def gettitle(page)
 		return page.parser.xpath("/html/body/div[2]/div[2]/div[2]/div/div/div/div[6]/div/div/div[7]/div[2]/b").to_html.gsub!('<b>','').gsub!('</b>','')
 	end
-	def getinfo(page)		
+	def getinfo(page)	
+		pattern = /(<img src=\")([\w \/ \: \. \" \=]*)([\>])/	
 		info = page.parser.xpath("/html/body/div[2]/div[2]/div[2]/div/div/div/div[6]/div/div/div[7]").to_html
-		
-		info = info.gsub('></a>','></img></a>').gsub('</a></span>','</a></img></span>').gsub('<br>','<br/>').gsub('</span></img></a>','</span></a>')	
-		#File.open("info.txt","w").write(info)
+		#File.open("origin.txt","w").write(info)
+		info = info.gsub(pattern,'\1\2\3' + '</img>').gsub('<br>','<br/>')
+		File.open("info.txt","w").write(info)
 		r = ReverseMarkdown.new
 		markdown = r.parse_string(info)
 		mach = markdown.match /(\[)(1)(\]\: )(.*)/
@@ -88,12 +89,12 @@ module Avaxhome
 					links2 << "http://uploaded.net/file/" + row["newAuth"] + "/" + row["filename"] +"\n"  unless row["err"]
 				end
 				
-				p = Post.where(title: title, description: info, source: url, download: links2.to_json, published: false).first_or_create!
+				p = Post.where(title: title,  source: url).first_or_create!
 				p.description = info
 				p.source = url
 				p.category = cat
 				p.download = links2.to_json
-				p.published = false
+				
 				if p.save! then			
 					puts "finished importing, queuing post job"		
 					#postQueue = QC::Queue.new("posting_jobs")
