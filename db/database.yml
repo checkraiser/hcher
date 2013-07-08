@@ -1,5 +1,0 @@
-adapter: postgresql
-host: localhost
-database: warez
-username: test
-password: 123456

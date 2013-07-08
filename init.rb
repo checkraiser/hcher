@@ -8,19 +8,22 @@ require 'json'
 require 'date'
 require 'redis'
 require './db/models'
-require './config'
 require './lib/revserse_markdown'
+require './lib/avaxhome'
 
+dbconfig = YAML::load(File.open(File.dirname(__FILE__) + '/config/database.yml'))
+ActiveRecord::Base.establish_connection(dbconfig)
 
-SID = ARGV[0] || Site.last.id
-filename = "Music"
+account = YAML::load(File.open(File.dirname(__FILE__) + '/config/database.yml'))['account1']
+USERNAME= account['username']
+PASSWORD= account['password']
+category = ARGV[0] || "Music"
 inputs = []
-File.readlines("driver/sources/#{filename}.txt").each_with_index do |line, index|
+File.readlines("driver/sources/#{category}.txt").each_with_index do |line, index|
 	inputs << line
 end
 
-inputs.each do |input|
-	puts "imported #{filename} #{input}"
+inputs.each do |input|	
 	#pendingQueue.enqueue("Avaxhome.import",[filename, input])
 	Avaxhome.import(filename, input)	
 end
