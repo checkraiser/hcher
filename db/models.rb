@@ -132,10 +132,11 @@ class Transaction < ActiveRecord::Base
 									
 			
 			#puts post_form.inspect
-			puts "posting " +post.title.force_encoding("UTF-8")
-			post_form[engine.subject_name] = post.title.force_encoding("UTF-8")  if post_form[engine.subject_name]
-			post_form[engine.message_name] = post.to_post.force_encoding("UTF-8") if post_form[engine.message_name]
-			post_form[engine.prefix_name] = site.prefix.force_encoding("UTF-8") if  post_form[engine.prefix_name] and site.prefix
+			encode = site.encoder || "UTF-8"
+			puts "posting " +post.title.force_encoding(encode)
+			post_form[engine.subject_name] = post.title.force_encoding(encode)  if post_form[engine.subject_name]
+			post_form[engine.message_name] = post.to_post.force_encoding(encode) if post_form[engine.message_name]
+			post_form[engine.prefix_name] = site.prefix.force_encoding(encode) if  post_form[engine.prefix_name] and site.prefix
 							
 			return agent.submit post_form 
 		rescue Exception => e
