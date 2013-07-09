@@ -1,12 +1,12 @@
 # encoding: UTF-8
-
-module Avaxhome	
+require 'uri'
+module Heroturko	
 	extend self
 	def recog?(url)
-		return url.upcase.include?('AVAXHO.ME')
+		return url.upcase.include?('HEROTURKO')
 	end
 	def gettitle(page)
-		result = page.parser.xpath('/html//div[@class="title"]/h1/text()').to_html
+		result = page.parser.xpath('/html//div[@class="post"]//h1/text()')[0].to_html
 		
 		return result
 	end
@@ -18,12 +18,12 @@ module Avaxhome
 		#pattern_iframe = /(\<iframe)(.*)(\<\/iframe\>)/
 		doc = Nokogiri::HTML( page.content )
 		image = doc.css('img').map{ |i| i['src'] }[1] # Array of strings
+		info = page.parser.xpath("/html/body//div[@class='story']").to_html
 		
-		info = page.parser.xpath("/html/body/div[2]/div[2]/div[2]/div/div/div/div[6]/div/div/div[7]").to_html
-		#File.open("origin.txt","w").write(info)
 		#info = info.gsub(pattern_img,'\1' + '</img>' + '\2').gsub(pattern_td,'\1' + '</td>' + '\2').gsub(pattern_iframe,'').gsub('<br>','<br/>')
 		#File.open("info.txt","w").write(info)
-		info = Nokogiri::HTML(info).text.gsub(/avax/,'')
+		info = Nokogiri::HTML(info).text.gsub(/http?:\/\/[\S]+/,'')
+		File.open("origin.txt","w").write(info)
 		#r = ReverseMarkdown.new
 		#markdown = r.parse_string(info)
 		#mach = markdown.match /(\[)(1)(\]\: )(.*)/
@@ -45,16 +45,16 @@ module Avaxhome
 
 		return res 
 	end
-	def import(category, url, site=nil)		
+	def import(category, url, site=nil)
+			
 		begin
 			ps = Post.where(source: url)
 			if ps.count > 0
 				cat = Category.where(:name => category).first
-				Starter.beginsite(cat.id, ps.first.id, site) if site
-				Starter.begin(cat.id, ps.first.id) unless site
+				Starter.begin(cat.id, ps.first.id)
 				return nil 
 			end
-			puts "begining import"
+			puts "begining import from #{url}"
 			cat = Category.where(:name => category).first
 			
 			agent2 = Mechanize.new do |a|
@@ -74,7 +74,7 @@ module Avaxhome
 			login_form['pw'] = PASSWORD
 
 			agent.submit login_form
-
+			
 			inputs = []
 			links = []
 						
@@ -84,20 +84,30 @@ module Avaxhome
 			info = getinfo(page)	
 			
 
-			items = page.search('//a').select {|i| i.to_html.upcase.include?("UPLOADED.NET") or i.to_html.upcase.include?("UL.TO")}
+
+			urls = []
+			uris_you_want_to_grap = ['http']
+
+			page.content.scan(URI.regexp(uris_you_want_to_grap)) do |*matches|
+			  urls << $&
+			end
+			
 
 
+			items = urls.select {|i| i.upcase.include?("UPLOADED.NET") or i.upcase.include?("UL.TO")}
 			if items.count > 0
 				
-				items.each do |item|
-					if item[:href].include?('folder') then 
-						page3 = agent2.get(item[:href])
+				items.each do |item|					
+					puts "uploading " + item
+					if item.include?('folder') then 
+
+						page3 = agent2.get(item)
 						items2 = page3.parser.xpath("/html/body/div[3]/div/div/table/tbody//tr/td[2]//a/@href")
 						items2.each do |it|
 							links << "http://uploaded.net/" + it.value
 						end
 					else
-						links << item[:href] 
+						links << item
 					end
 				end
 

@@ -2,7 +2,7 @@
 require 'active_record'
 require 'yaml'
 
-dbconfig = YAML::load(File.open(File.dirname(__FILE__) + '/database.yml'))
+dbconfig = YAML::load(File.open(File.expand_path('./config') + '/database.yml'))[ENV['DATABASE']]
 ActiveRecord::Base.establish_connection(dbconfig)
 
 ActiveRecord::Schema.define do
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define do
 		table.column :username, :string
 		table.column :password, :string
 		table.column :site_id, :integer
+		table.column :status, :boolean
 	end
 	create_table :transactions do |t|
 	    t.integer :post_id

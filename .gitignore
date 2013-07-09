@@ -2,3 +2,5 @@ config/*
 *.lock
 *.bat
 *.txt
+*.html
+*.properties
